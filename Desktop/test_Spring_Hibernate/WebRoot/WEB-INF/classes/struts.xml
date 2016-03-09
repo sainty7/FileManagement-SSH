@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
+	"http://struts.apache.org/dtds/struts-2.3.dtd">
+
+<struts>
+    <!-- Add packages here -->
+	<constant name="struts.devMode" value="true" />
+	<package name="default" extends="struts-default">
+        <action name="/" class="action.StartingAction">
+            <result name="success">/register.jsp</result>
+        </action>
+        <action name="register" class="registerAction">
+            <result name="success">/login.jsp</result>
+            <result name="error">/register.jsp</result>
+        </action>
+        <action name="login" class="loginAction">
+            <result name="success">/list.jsp</result>
+            <result name="error">/login.jsp</result>
+        </action>  
+        <action name="compose" class="composeAction">
+            <result name="success">/compose.jsp</result>
+        </action>        
+         <action name="return2list" class="return2listAction">
+            <result name="success">/list.jsp</result>
+        </action>           
+         <action name="fileupload" class="fileuploadAction">
+            <result name="success">/list.jsp</result>
+        </action>    
+        <action name="filedownload" class="filedownloadAction">
+ 			<result name="success" type="stream">
+ 				<param name="contentType">application/octet-stream;charset=ISO8859-1</param>
+ 				<param name="contentDisposition">attachment;filename="${filename}"</param>
+ 				<param name="inputName">downloadFile</param>
+ 				<param name="bufferSize">2048</param> 
+ 			</result>
+        </action>
+        <action name="filedelete" class="filedeleteAction">
+        	<result name="success">/list.jsp</result>       
+        </action>      
+        <action name="logout" class="logoutAction">
+            <result name="success">/login.jsp</result>
+        </action>              
+	</package>
+
+</struts>

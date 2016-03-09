@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping >
+    <!--name 实体类的 包名+ 类名        table数据库的表名    -->  
+ <class name="model.Person" table="person">
+     <!-- name对应实体类的属性id -->
+     <id  name="id"  type="java.lang.Integer">
+       <column name="Id"></column>
+       <generator class="native"></generator>
+     </id>
+    <property name="username" type="java.lang.String">
+      <column name="Username"></column>
+    </property>
+    <property name="email" type="java.lang.String">
+      <column name="Email"></column>
+    </property>
+    <property name="password" type="java.lang.String">
+      <column name="Password"></column>
+    </property>
+   
+    <many-to-one name="container" column="container_Id" class="model.Container" not-null="true" lazy="false" />
+	<set name="files_set" lazy="false" cascade="all" inverse="true" >
+		<key column="person_id" />
+		<one-to-many class="model.Files"/>
+	</set> 
+      
+ </class>
+
+</hibernate-mapping>

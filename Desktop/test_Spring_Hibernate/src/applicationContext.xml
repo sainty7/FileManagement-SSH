@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context ="http://www.springframework.org/schema/context" 
+    xmlns:aop="http://www.springframework.org/schema/aop" 
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-2.5.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd" >
+
+ 
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="user" value="root"></property>
+		<property name="password" value="1234"></property>
+		<property name="driverClass" value="com.mysql.jdbc.Driver"></property>
+		<property name="jdbcUrl" value="jdbc:mysql://localhost:3306/management"></property>		
+		<property name="initialPoolSize" value="5"></property>
+		<property name="maxPoolSize" value="10"></property>
+	</bean>
+    
+    <bean id="sessionFactory"
+        class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource" />     
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">
+                    org.hibernate.dialect.MySQLDialect
+                </prop>
+                <prop key="hibernate.show_sql">true</prop>
+                <prop key="hibernate.format_sql">true</prop>
+                <prop key="hibernate.hbm2ddl.auto">update</prop>
+            </props>
+        </property>
+        <property name="mappingLocations">
+            <list>
+                <!-- *.hbm.xml 在这里配置 -->
+                <value>classpath:model/Container.hbm.xml</value>
+                <value>classpath:model/Files.hbm.xml</value>
+                <value>classpath:model/Person.hbm.xml</value>                
+            </list>
+        </property>
+    </bean>
+    <!-- 开启注解配置 -->
+    <context:annotation-config />
+	<!-- 配置自动扫描的包 -->
+	<context:component-scan base-package="biz" /> 
+
+
+	<!-- 配置 Spring 的声明式事务 -->
+	<!-- 1. 配置 hibernate 的事务管理器 -->
+	<bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+
+	<!-- 2. 配置事务属性 -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="get*" read-only="true"/>
+			<tx:method name="*"/>
+		</tx:attributes>
+	</tx:advice>
+	
+	<!-- 3. 配置事务切入点, 再把事务属性和事务切入点关联起来 -->
+	<aop:config>
+		<aop:pointcut expression="execution(* biz.*.*(..))" id="txPointcut"/>
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="txPointcut"/>
+	</aop:config>
+
+        <!-- DAO --> 
+
+    <bean id="persondao" class="dao.PersonDAOImpl" >
+    	<property name="sessionFactory" ref="sessionFactory" />
+    </bean>
+    <bean id="containerdao" class="dao.ContainerDAOImpl">
+    	<property name="sessionFactory" ref="sessionFactory" />
+    </bean>
+     <bean id="fileuploaddao" class="dao.FileuploadDAOImpl">
+    	<property name="sessionFactory" ref="sessionFactory" />
+    </bean>   
+     <bean id="filedao" class="dao.FileDAOImpl">
+    	<property name="sessionFactory" ref="sessionFactory" />
+    </bean> 
+    
+        <!-- Biz -->    
+    <bean id="registerbiz" class="biz.RegisterBizImpl">
+        <property name="persondao" ref="persondao" />
+        <property name="containerdao" ref="containerdao" />
+    </bean>
+     <bean id="loginbiz" class="biz.LoginBizImpl">
+        <property name="persondao" ref="persondao" />
+    </bean>   
+    <bean id="fileuploadbiz" class="biz.FileuploadBizImpl">
+    	<property name="persondao" ref="persondao" />
+        <property name="fileuploaddao" ref="fileuploaddao" />
+    </bean>
+    <bean id="filelistbiz" class="biz.FilelistBizImpl">
+    	<property name="persondao" ref="persondao" />
+    </bean>       
+    <bean id="filedeletebiz" class="biz.FiledeleteBizImpl">
+    	<property name="filedao" ref="filedao" />
+    	<property name="persondao" ref="persondao" />
+    </bean>      
+    
+    <!-- Action -->
+    <bean name="registerAction" class="action.RegisterAction" >
+	    <property name="registerbiz" ref="registerbiz"></property>
+	</bean>
+    <bean name="loginAction" class="action.LoginAction" >
+   		<property name="filelistbiz" ref="filelistbiz"></property>
+	    <property name="loginbiz" ref="loginbiz"></property>
+	</bean>
+    <bean name="composeAction" class="action.ComposeAction" >
+	</bean>
+	<bean name="return2listAction" class="action.Return2listAction" >
+		<property name="filelistbiz" ref="filelistbiz"></property>	
+	</bean>
+	<bean name="fileuploadAction" class="action.FileuploadAction" >
+		<property name="fileuploadbiz" ref="fileuploadbiz"></property>
+		<property name="filelistbiz" ref="filelistbiz"></property>
+	</bean>	
+	<bean name="filedownloadAction" class="action.FiledownloadAction" >
+	</bean>	
+	
+	<bean name="filedeleteAction" class="action.FiledeleteAction" >
+		<property name="filedeletebiz" ref="filedeletebiz"></property>
+	</bean>		
+	<bean name="logoutAction" class="action.LogoutAction" >
+	</bean>
+	
+	
+		
+</beans>

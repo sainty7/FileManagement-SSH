@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping >
+    <!--name 实体类的 包名+ 类名        table数据库的表名    -->  
+ <class name="model.Files" table="file">
+     <!-- name对应实体类的属性id -->
+     <id  name="id"  type="java.lang.Integer">
+       <column name="Id"></column>
+       <generator class="native"></generator>
+     </id>
+    <property name="name" type="java.lang.String">
+      <column name="Name"></column>
+    </property>
+    <property name="note" type="java.lang.String">
+      <column name="Note"></column>
+    </property>
+   
+    <many-to-one name="person" column="person_Id" class="model.Person" not-null="true" lazy="false" />
+
+      
+ </class>
+
+</hibernate-mapping>
